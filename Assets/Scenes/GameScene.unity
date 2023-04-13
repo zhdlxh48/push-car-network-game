@@ -454,6 +454,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 0
+  car: {fileID: 1002713740}
+  flag: {fileID: 1700675103}
 --- !u!82 &1002713742
 AudioSource:
   m_ObjectHideFlags: 0

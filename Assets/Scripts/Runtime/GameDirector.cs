@@ -11,7 +11,7 @@ public class GameDirector : MonoBehaviour
 
     private void Update()
     {
-        var dist = Vector3.Distance(car.position, flag.position);
+        var dist = GetDistance();
 
         if (!IsGameOver(dist))
         {
@@ -22,6 +22,8 @@ public class GameDirector : MonoBehaviour
             distanceText.text = "Game Over";
         }
     }
+
+    private float GetDistance() => flag.position.x - car.position.x;
 
     public bool IsGameOver(float dist)
     {
