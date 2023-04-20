@@ -1,8 +1,8 @@
 {
-    "name": "Runtime",
-    "rootNamespace": "PushCar",
+    "name": "Editor",
+    "rootNamespace": "PushCar.Editor",
     "references": [
-        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+        "GUID:9c4297c8450c3034e970e3f3e0a36195"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
