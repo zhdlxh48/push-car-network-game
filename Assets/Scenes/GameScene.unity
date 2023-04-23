@@ -519,7 +519,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000061035156, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 450, y: 100}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &724668105
@@ -905,6 +905,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8930c372dcb82514598a22d3f550d515, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inputReader: {fileID: 1811611322}
   speed: 0
   car: {fileID: 1002713740}
   flag: {fileID: 1700675103}
@@ -1014,7 +1015,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1087442356}
   - component: {fileID: 1087442355}
-  - component: {fileID: 1087442354}
   m_Layer: 0
   m_Name: UI Camera
   m_TagString: Untagged
@@ -1022,14 +1022,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &1087442354
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1087442353}
-  m_Enabled: 1
 --- !u!20 &1087442355
 Camera:
   m_ObjectHideFlags: 0
@@ -1489,11 +1481,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _inputReadCamera: {fileID: 963194227}
-  startPosition: {x: 0, y: 0}
-  endPosition: {x: 0, y: 0}
   startViewport: {x: 0, y: 0}
   endViewport: {x: 0, y: 0}
-  swipeLength: 0
+  <SwipeLength>k__BackingField: 0
 --- !u!4 &1811611323
 Transform:
   m_ObjectHideFlags: 0

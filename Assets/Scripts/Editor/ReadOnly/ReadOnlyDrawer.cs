@@ -1,8 +1,8 @@
-﻿using UnityEditor;
+﻿using PushCar.Runtime.Attributes.ReadOnly;
+using UnityEditor;
 using UnityEngine;
-using PushCar.Attributes;
 
-namespace PushCar.Editor
+namespace PushCar.Editor.ReadOnly
 {
     [CustomPropertyDrawer(typeof(ReadOnlyAttribute), true)]
     public class ReadOnlyDrawer : PropertyDrawer

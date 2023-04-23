@@ -1,14 +1,21 @@
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
+using PushCar;
+using PushCarLib;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
 public class CarController : MonoBehaviour
 {
+    [SerializeField] private InputReader inputReader;
+    
     private AudioSource _audioSource;
 
     [SerializeField] private float speed;
+    [SerializeField] private float speedMultiplier = 2f;
     
     private Vector2 startPosition;
 
@@ -17,28 +24,27 @@ public class CarController : MonoBehaviour
 
     private int networkFlag = 0;
 
+    public event Action OnStopCar;
+
     private void Awake()
     {
         _audioSource = GetComponent<AudioSource>();
     }
 
+    private void OnEnable()
+    {
+        inputReader.OnStartSwipe += OnStartSwipe;
+        inputReader.OnEndSwipe += OnEndSwipe;
+    }
+    
+    private void OnDisable()
+    {
+        inputReader.OnStartSwipe -= OnStartSwipe;
+        inputReader.OnEndSwipe -= OnEndSwipe;
+    }
+
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            startPosition = Input.mousePosition;
-        }
-        else if (Input.GetMouseButtonUp(0))
-        {
-            var endPos = Input.mousePosition;
-            var swipeLen = endPos.x - startPosition.x;
-
-            speed = swipeLen > 0f ? swipeLen / 500f : 0f;
-
-            _audioSource.Play();
-            networkFlag = 1;
-        }
-
         transform.Translate(speed, 0, 0);
 
         if (speed > 0.01f)
@@ -52,27 +58,56 @@ public class CarController : MonoBehaviour
             if (networkFlag == 1)
             {
                 networkFlag = 0;
-                var dist = GetDistance();
-
-                TestSendToNetwork("Reached: " + dist.ToString());
+                
+                OnStopCar?.Invoke();
+                // var dist = GetDistance();
+                //
+                // TestSendToNetwork("Reached: " + dist.ToString());
             }
         }
     }
 
+    private void OnStartSwipe()
+    {
+        speed = 0f;
+    }
+
+    private void OnEndSwipe(float len)
+    {
+        speed = len * speedMultiplier;
+        
+        _audioSource.Play();
+        networkFlag = 1;
+    }
+
     private float GetDistance() => flag.position.x - car.position.x;
 
-    private void TestSendToNetwork(string str)
+    private async void TestSendToNetwork(string str)
     {
         var clientSock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        var sendBuf = Encoding.Default.GetBytes(str);
-        EndPoint srvEP = new IPEndPoint(IPAddress.Loopback, 10200);
+        
+        var time = 4f;
+        var dist = 100;
 
-        clientSock.SendTo(sendBuf, srvEP);
+        var score = new Score(time, dist);
+        var sendBuf = score.CopyToBuffer(1024);
+        
+        EndPoint serverEp = new IPEndPoint(IPAddress.Loopback, 9948);
 
-        var recvBuf = new byte[1024];
-        var rcvLen = clientSock.ReceiveFrom(recvBuf, ref srvEP);
-        var text = Encoding.Default.GetString(recvBuf, 0, rcvLen);
+        try
+        {
+            await Task.Run((() => clientSock.SendTo(sendBuf, serverEp)));
 
-        Debug.Log(text);
+            var recvBuf = new byte[1024];
+            var rcvLen = clientSock.ReceiveFrom(recvBuf, ref serverEp);
+            var text = Encoding.Default.GetString(recvBuf, 0, rcvLen);
+
+            Debug.Log(text);
+        }
+        catch (Exception ex)
+        {
+            Debug.Log(ex);
+            throw;
+        }
     }
 }

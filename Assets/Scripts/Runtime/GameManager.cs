@@ -1,13 +1,33 @@
+using System;
+using Runtime.Server;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class GameDirector : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     [SerializeField] private Transform car;
     [SerializeField] private Transform flag;
+    
+    [SerializeField] private CarController carController;
+    [SerializeField] private ClientHandler clientHandler;
 
     [SerializeField] private TextMeshProUGUI distanceText;
+
+    private void OnEnable()
+    {
+        carController.OnStopCar += OnGameEnd;
+    }
+
+    private void OnDisable()
+    {
+        carController.OnStopCar -= OnGameEnd;
+    }
+
+    private void OnGameEnd()
+    {
+        
+    }
 
     private void Update()
     {

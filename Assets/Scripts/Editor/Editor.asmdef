@@ -1,6 +1,6 @@
 {
     "name": "Editor",
-    "rootNamespace": "PushCar.Editor",
+    "rootNamespace": "PushCar",
     "references": [
         "GUID:9c4297c8450c3034e970e3f3e0a36195"
     ],

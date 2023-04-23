@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace PushCar.Attributes
+namespace PushCar.Runtime.Attributes.ReadOnly
 {
     public enum ReadOnlyType
     {
