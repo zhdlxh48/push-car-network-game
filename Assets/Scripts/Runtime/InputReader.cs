@@ -2,7 +2,7 @@
 using PushCar.Runtime.Attributes.ReadOnly;
 using UnityEngine;
 
-namespace PushCar
+namespace PushCar.Runtime
 {
     public class InputReader : MonoBehaviour
     {

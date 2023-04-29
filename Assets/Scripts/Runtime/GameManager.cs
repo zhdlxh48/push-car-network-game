@@ -1,52 +1,111 @@
-using System;
-using Runtime.Server;
+using System.Collections;
+using System.Threading.Tasks;
+using PushCar.Runtime.Server;
+using PushCarLib;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 
-public class GameManager : MonoBehaviour
+namespace PushCar.Runtime
 {
-    [SerializeField] private Transform car;
-    [SerializeField] private Transform flag;
+    public class GameManager : MonoBehaviour
+    {
+        [SerializeField] private RemoteCarController remoteCarController;
+        [SerializeField] private LocalCarController localCarController;
+        [SerializeField] private InputReader inputReader;
     
-    [SerializeField] private CarController carController;
-    [SerializeField] private ClientHandler clientHandler;
-
-    [SerializeField] private TextMeshProUGUI distanceText;
-
-    private void OnEnable()
-    {
-        carController.OnStopCar += OnGameEnd;
-    }
-
-    private void OnDisable()
-    {
-        carController.OnStopCar -= OnGameEnd;
-    }
-
-    private void OnGameEnd()
-    {
+        [SerializeField] private ClientHandler clientHandler;
         
-    }
+        [SerializeField] private ScoreUIHandler localScoreUIHandler;
+        [SerializeField] private RankingUIHandler rankingUIHandler;
+    
+        [SerializeField] private GameObject readyText;
+        [SerializeField] private GameObject startText;
+        [SerializeField] private GameObject startButton;
+        
+        private Score _currentRivalScore;
 
-    private void Update()
-    {
-        var dist = GetDistance();
-
-        if (!IsGameOver(dist))
+        private void Awake()
         {
-            distanceText.text = string.Format("Distance (Car-Flag): {0:0.00}", dist);
+            readyText.SetActive(false);
+            startText.SetActive(false);
+            startButton.SetActive(true);
         }
-        else
+
+        private void OnEnable()
         {
-            distanceText.text = "Game Over";
+            inputReader.enabled = false;
+            StartCoroutine(UpdateRanking());
+        
+            localCarController.OnStopCar += GameEnd;
         }
-    }
 
-    private float GetDistance() => flag.position.x - car.position.x;
+        private void OnDisable()
+        {
+            localCarController.OnStopCar -= GameEnd;
+            StopAllCoroutines();
+        }
 
-    public bool IsGameOver(float dist)
-    {
-        return dist < 0f;
+        private IEnumerator UpdateRanking()
+        {
+            while (true)
+            {
+                var scores = clientHandler.ReceiveFromServer(4);
+                rankingUIHandler.ShowRanking(scores);
+
+                yield return new WaitForSeconds(60f);
+            }
+        }
+
+        public async void GameStart()
+        {
+            _currentRivalScore = clientHandler.ReceiveRandomFromServer();
+            
+            startButton.SetActive(false);
+        
+            remoteCarController.Initialize();
+            localCarController.Initialize();
+            localScoreUIHandler.Initialize();
+        
+            // UI Start
+        
+            readyText.SetActive(true);
+            startText.SetActive(false);
+
+            await Task.Delay(1000);
+            
+            remoteCarController.SetMovement(_currentRivalScore.Time, _currentRivalScore.Distance);
+        
+            readyText.SetActive(false);
+            startText.SetActive(true);
+        
+            await Task.Delay(1000);
+        
+            readyText.SetActive(false);
+            startText.SetActive(false);
+        
+            // UI End
+        
+            inputReader.enabled = true;
+        }
+
+        public void GameEnd(float time, float dist)
+        {
+            inputReader.enabled = false;
+            localScoreUIHandler.ShowScore(time, dist);
+
+            if (dist > 0f)
+            {
+                Debug.Log($"Rival dist: {remoteCarController.GetRemainDistance()}, my dist: {dist} / you {(dist <= remoteCarController.GetRemainDistance() ? "win" : "lose")}");
+                var isWinner = dist <= remoteCarController.GetRemainDistance();
+                localScoreUIHandler.LetsDecideLooser(!isWinner);
+                
+                clientHandler.SendToServer(time, dist);
+            }
+            else
+            {
+                localScoreUIHandler.LetsDecideLooser(true);
+            }
+
+            startButton.SetActive(true);
+        }
     }
 }
